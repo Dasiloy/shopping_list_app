@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:shopping_list_app/screens/home.screen.dart";
 import "package:shopping_list_app/theme/theme.dart";
 
 void main() {
@@ -13,7 +14,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: "Groceries App",
       theme: kTheme,
-      home: Text('home'),
+      home: HomeScreen(),
     );
   }
 }
