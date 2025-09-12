@@ -87,4 +87,8 @@ class GroceryItem {
     required this.quantity,
     required this.category,
   }) : id = uuid.v4();
+
+  Map<String, dynamic> get json {
+    return {"name": name, "quantity": quantity, "category": category.title};
+  }
 }

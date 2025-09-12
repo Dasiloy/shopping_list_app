@@ -38,15 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Shopping List"),
         actions: [
           IconButton(
-            onPressed: () async {
-              final grocery = await Navigator.of(context).push<GroceryItem>(
+            onPressed: () {
+              Navigator.of(context).push<GroceryItem>(
                 MaterialPageRoute(builder: (ctx) => NewGrocery()),
               );
-              if (grocery != null) {
-                setState(() {
-                  list.add(grocery);
-                });
-              }
             },
             icon: Icon(Icons.add),
           ),
