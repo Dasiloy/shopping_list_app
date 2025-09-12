@@ -13,14 +13,12 @@ class NewGrocery extends StatefulWidget {
 }
 
 class _NewGroceryState extends State<NewGrocery> {
-  final _formKey = GlobalKey<FormState>();
-
   String _title = "";
-
   int _quantity = 1;
-
-  final Map<Categories, Category> _categories = Category.generateMap();
   late Category _category;
+  bool _isSending = false;
+  final _formKey = GlobalKey<FormState>();
+  final Map<Categories, Category> _categories = Category.generateMap();
 
   @override
   void initState() {
@@ -30,22 +28,25 @@ class _NewGroceryState extends State<NewGrocery> {
 
   Future<void> _onSave() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isSending = true;
+      });
       _formKey.currentState!.save();
       final url = Uri.https(
         "shopingapp-65953-default-rtdb.firebaseio.com",
         "shopping-list.json",
       );
 
+      final payload = GroceryItem.withId(
+        name: _title,
+        quantity: _quantity,
+        category: _category,
+      );
+
       final res = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
-        body: json.encode(
-          GroceryItem.withId(
-            name: _title,
-            quantity: _quantity,
-            category: _category,
-          ).json,
-        ),
+        body: json.encode(payload.json),
       );
 
       _formKey.currentState?.reset();
@@ -53,7 +54,15 @@ class _NewGroceryState extends State<NewGrocery> {
         return;
       }
 
-      Navigator.of(context).pop();
+      final Map<String, dynamic> data = json.decode(res.body);
+      Navigator.of(context).pop(
+        GroceryItem(
+          id: data["name"],
+          name: payload.name,
+          quantity: payload.quantity,
+          category: payload.category,
+        ),
+      );
     }
   }
 
@@ -145,12 +154,23 @@ class _NewGroceryState extends State<NewGrocery> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      _formKey.currentState!.reset();
-                    },
+                    onPressed: _isSending
+                        ? null
+                        : () {
+                            _formKey.currentState!.reset();
+                          },
                     child: Text("Cancel"),
                   ),
-                  ElevatedButton(onPressed: _onSave, child: Text("Submit")),
+                  _isSending
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(),
+                        )
+                      : ElevatedButton(
+                          onPressed: _onSave,
+                          child: Text("Submit"),
+                        ),
                 ],
               ),
             ],
